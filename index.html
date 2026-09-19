@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexusMine — Cloud Mining Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.383.0/umd/lucide.min.js"></script>
+<style>
+:root{
+  --bg:#07070f;--surface:#0f0f1a;--card:#161625;--card2:#1c1c2e;
+  --border:#2a2a45;--border-hi:#3d3d6b;
+  --violet:#7c3aed;--violet-hi:#a78bfa;--violet-dim:#4c1d95;--violet-glow:rgba(124,58,237,.25);
+  --emerald:#10b981;--emerald-dim:#065f46;
+  --rose:#f43f5e;--rose-dim:#881337;
+  --amber:#f59e0b;--amber-dim:#78350f;
+  --text:#e2e2f0;--text-2:#9898b8;--text-3:#4a4a6a;
+  --mono:'JetBrains Mono',monospace;--head:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;
+  --r:12px;--r-sm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden;line-height:1.6}
+button,input,select,textarea{font-family:inherit}
+
+/* ── CURSOR ── */
+.cur{position:fixed;width:10px;height:10px;background:var(--violet-hi);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);box-shadow:0 0 16px var(--violet-hi);transition:width .15s,height .15s}
+.cur-ring{position:fixed;width:32px;height:32px;border:1.5px solid rgba(167,139,250,.35);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:left .11s ease-out,top .11s ease-out}
+body:hover .cur{cursor:none}
+
+/* ── NOISE OVERLAY ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6}
+
+/* ── PAGE SYSTEM ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ════════════════════════════════════
+   LANDING PAGE
+════════════════════════════════════ */
+
+/* NAV */
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(7,7,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.lp-nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px;max-width:1200px;margin:0 auto;padding:0 32px}
+.logo{font-family:var(--head);font-size:22px;font-weight:700;color:#fff;text-decoration:none;display:flex;align-items:center;gap:8px;cursor:none}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--violet),var(--violet-hi));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px;stroke:#fff}
+.logo-text span{color:var(--violet-hi)}
+.lp-links{display:flex;gap:32px;list-style:none}
+.lp-links a{font-size:14px;font-weight:500;color:var(--text-2);text-decoration:none;transition:color .2s;cursor:none}
+.lp-links a:hover{color:var(--text)}
+.lp-nav-right{display:flex;gap:10px;align-items:center}
+.btn-outline{font-size:14px;font-weight:500;padding:9px 20px;background:transparent;border:1px solid var(--border-hi);color:var(--text-2);border-radius:var(--r-sm);cursor:none;transition:all .2s}
+.btn-outline:hover{border-color:var(--violet-hi);color:var(--violet-hi)}
+.btn-violet{font-size:14px;font-weight:600;padding:9px 22px;background:var(--violet);border:none;color:#fff;border-radius:var(--r-sm);cursor:none;transition:all .2s}
+.btn-violet:hover{background:var(--violet-hi);transform:translateY(-1px);box-shadow:0 4px 20px var(--violet-glow)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 32px 64px;position:relative;overflow:hidden;text-align:center}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.ho1{width:700px;height:700px;background:radial-gradient(circle,rgba(124,58,237,.18),transparent 70%);top:-200px;left:50%;transform:translateX(-50%)}
+.ho2{width:400px;height:400px;background:radial-gradient(circle,rgba(16,185,129,.1),transparent 70%);bottom:-100px;left:-100px}
+.ho3{width:300px;height:300px;background:radial-gradient(circle,rgba(244,63,94,.08),transparent 70%);bottom:-50px;right:-50px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;padding:6px 14px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);border-radius:999px;color:var(--violet-hi);margin-bottom:28px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--violet-hi);animation:pulse 2s infinite}
+.hero-h1{font-family:var(--head);font-size:clamp(52px,8vw,96px);font-weight:700;line-height:1.05;letter-spacing:-2px;color:#fff;margin-bottom:24px}
+.hero-h1 .grad{background:linear-gradient(135deg,var(--violet-hi),#c4b5fd,var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-p{font-size:18px;font-weight:400;color:var(--text-2);max-width:520px;margin:0 auto 44px;line-height:1.7}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:72px}
+.btn-hero-primary{font-size:15px;font-weight:600;padding:14px 36px;background:var(--violet);border:none;color:#fff;border-radius:var(--r);cursor:none;transition:all .25s;display:flex;align-items:center;gap:8px}
+.btn-hero-primary svg{width:16px;height:16px;stroke:#fff;flex-shrink:0}
+.btn-hero-primary:hover{background:var(--violet-hi);transform:translateY(-2px);box-shadow:0 8px 32px var(--violet-glow)}
+.btn-hero-ghost{font-size:15px;font-weight:500;padding:14px 36px;background:rgba(255,255,255,.05);border:1px solid var(--border-hi);color:var(--text);border-radius:var(--r);cursor:none;transition:all .25s}
+.btn-hero-ghost:hover{background:rgba(255,255,255,.08);border-color:var(--violet-hi)}
+
+/* STATS ROW */
+.hero-stats{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.h-stat{flex:1;padding:24px 28px;border-right:1px solid var(--border);text-align:center}
+.h-stat:last-child{border-right:none}
+.h-stat-val{font-family:var(--head);font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
+.h-stat-lbl{font-size:12px;color:var(--text-2)}
+
+/* TICKER */
+.ticker-wrap{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;padding:0}
+.ticker-track{display:flex;animation:tick 28s linear infinite;white-space:nowrap}
+.tick-item{display:inline-flex;align-items:center;gap:8px;padding:12px 36px;font-family:var(--mono);font-size:11px;color:var(--text-3);border-right:1px solid var(--border);flex-shrink:0}
+.tick-item .tv{color:var(--emerald)}
+.tick-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);animation:pulse 2s infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* SECTIONS */
+.lp-section{padding:96px 0;position:relative;z-index:2}
+.lp-wrap{max-width:1200px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+.s-eyebrow{font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--violet-hi);margin-bottom:12px}
+.s-h2{font-family:var(--head);font-size:clamp(36px,5vw,60px);font-weight:700;color:#fff;letter-spacing:-1px;line-height:1.1;margin-bottom:16px}
+.s-h2 .g{background:linear-gradient(135deg,var(--violet-hi),#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.s-p{font-size:16px;color:var(--text-2);max-width:500px;line-height:1.75}
+.s-hdr{margin-bottom:56px}
+.s-hdr.center{text-align:center}
+.s-hdr.center .s-p{margin:0 auto}
+
+/* LIVE DASHBOARD (landing) */
+.pub-dash{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;position:relative;overflow:hidden}
+.pub-dash::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--violet),var(--violet-hi),transparent)}
+.dash4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:8px;overflow:hidden;margin-bottom:28px}
+.d4cell{background:var(--card);padding:20px}
+.d4lbl{font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.d4val{font-family:var(--mono);font-size:24px;color:var(--violet-hi);font-weight:500}
+.d4chg{font-size:12px;color:var(--emerald);margin-top:4px}
+.chart-box{height:140px;position:relative}
+canvas{display:block;width:100%;height:100%}
+
+/* COINS */
+.coins6{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.coin-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px 16px;text-align:center;transition:all .25s;cursor:none}
+.coin-c:hover{border-color:var(--violet);transform:translateY(-4px);box-shadow:0 8px 32px var(--violet-glow)}
+.coin-sym{font-family:var(--head);font-size:26px;font-weight:700;margin-bottom:6px}
+.coin-nm{font-size:11px;color:var(--text-2);margin-bottom:10px}
+.coin-roi{font-family:var(--mono);font-size:12px;color:var(--emerald);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:999px;padding:3px 10px;display:inline-block}
+
+/* PLANS */
+.plans3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:32px;position:relative;transition:border-color .25s}
+.plan-card:hover{border-color:var(--border-hi)}
+.plan-card.pop{border-color:var(--violet);background:linear-gradient(160deg,rgba(124,58,237,.08),var(--card))}
+.plan-pop-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 16px;background:var(--violet);color:#fff;border-radius:0 0 8px 8px}
+.plan-name{font-family:var(--head);font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.plan-hs{font-family:var(--mono);font-size:12px;color:var(--violet-hi);margin-bottom:20px}
+.plan-price{font-family:var(--head);font-size:52px;font-weight:700;color:#fff;line-height:1;margin-bottom:4px}
+.plan-price sup{font-size:22px;vertical-align:top;margin-top:10px;display:inline-block;color:var(--text-2);font-weight:400}
+.plan-per{font-size:13px;color:var(--text-2);margin-bottom:28px}
+.plan-feats{list-style:none;margin-bottom:28px;display:flex;flex-direction:column;gap:10px}
+.plan-feats li{font-size:14px;color:var(--text-2);display:flex;align-items:center;gap:10px}
+.plan-feats li svg{width:15px;height:15px;stroke:var(--emerald);flex-shrink:0}
+.plan-feats li.gold svg{stroke:var(--amber)}
+.plan-feats li.gold{color:var(--text)}
+.btn-plan{width:100%;padding:13px;font-size:14px;font-weight:600;border-radius:var(--r-sm);cursor:none;transition:all .2s;border:1px solid var(--border-hi);background:transparent;color:var(--text)}
+.btn-plan:hover{background:var(--violet);border-color:var(--violet);color:#fff}
+.plan-card.pop .btn-plan{background:var(--violet);border-color:var(--violet);color:#fff}
+.plan-card.pop .btn-plan:hover{background:var(--violet-hi);border-color:var(--violet-hi)}
+
+/* FEATURES */
+.feats6{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.feat-c{background:var(--card);padding:36px 28px;transition:background .25s}
+.feat-c:hover{background:var(--card2)}
+.feat-icon-wrap{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;transition:all .25s}
+.feat-icon-wrap svg{width:22px;height:22px;stroke:var(--violet-hi)}
+.feat-c:hover .feat-icon-wrap{background:rgba(124,58,237,.2);box-shadow:0 0 20px var(--violet-glow)}
+.feat-name{font-family:var(--head);font-size:17px;font-weight:600;color:#fff;margin-bottom:10px}
+.feat-desc{font-size:14px;color:var(--text-2);line-height:1.7}
+
+/* STEPS */
+.steps4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative}
+.steps4::before{content:'';position:absolute;top:24px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent)}
+.step-c{text-align:center;padding:24px 16px;position:relative;z-index:1}
+.step-num-wrap{width:48px;height:48px;border-radius:50%;background:var(--card2);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transition:all .3s}
+.step-num-wrap svg{width:20px;height:20px;stroke:var(--violet-hi)}
+.step-c:hover .step-num-wrap{background:rgba(124,58,237,.15);border-color:var(--violet);box-shadow:0 0 20px var(--violet-glow)}
+.step-title{font-family:var(--head);font-size:16px;font-weight:600;color:#fff;margin-bottom:8px}
+.step-desc{font-size:13px;color:var(--text-2);line-height:1.6}
+
+/* TESTIMONIALS */
+.testis{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.testi-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px}
+.testi-stars{color:var(--amber);font-size:13px;letter-spacing:2px;margin-bottom:16px}
+.testi-txt{font-size:14px;color:var(--text-2);line-height:1.8;margin-bottom:20px;font-style:italic}
+.testi-author{font-weight:600;color:var(--text);font-size:14px}
+.testi-role{font-size:12px;color:var(--text-3);margin-top:3px;font-family:var(--mono)}
+
+/* CTA BOX */
+.cta-box{background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(124,58,237,.04));border:1px solid rgba(124,58,237,.25);border-radius:var(--r);padding:72px;text-align:center;position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,58,237,.06),transparent 60%);pointer-events:none}
+.cta-h{font-family:var(--head);font-size:clamp(40px,5vw,72px);font-weight:700;color:#fff;letter-spacing:-2px;margin-bottom:16px;line-height:1.1}
+.cta-p{font-size:17px;color:var(--text-2);max-width:440px;margin:0 auto 40px;line-height:1.7}
+.cta-btns{display:flex;gap:14px;justify-content:center}
+
+/* FOOTER */
+.lp-footer{border-top:1px solid var(--border);padding:56px 0 28px}
+.footer4{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-logo-wrap{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.footer-tagline{font-size:13px;color:var(--text-2);line-height:1.7;max-width:260px;margin-bottom:20px}
+.footer-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--emerald);font-family:var(--mono)}
+.footer-status-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:pulse 2s infinite}
+.footer-col-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-3);margin-bottom:16px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{font-size:13px;color:var(--text-2);text-decoration:none;transition:color .2s;cursor:none}
+.footer-links a:hover{color:var(--violet-hi)}
+.footer-bot{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:12px;color:var(--text-3);font-family:var(--mono)}
+
+/* ════════════════════════════════════
+   AUTH MODAL
+════════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(7,7,15,.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border-hi);width:100%;max-width:460px;border-radius:var(--r);padding:40px;position:relative;animation:mIn .28s ease}
+@keyframes mIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--violet),var(--violet-hi),transparent);border-radius:var(--r) var(--r) 0 0}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--card2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:none;transition:all .2s;color:var(--text-2)}
+.modal-x:hover{background:var(--border-hi);color:#fff}
+.modal-x svg{width:15px;height:15px;stroke:currentColor}
+.modal-tabs{display:flex;gap:4px;margin-bottom:32px;background:var(--surface);border-radius:10px;padding:4px}
+.m-tab{flex:1;font-size:13px;font-weight:600;padding:9px;background:transparent;border:none;color:var(--text-2);cursor:none;border-radius:8px;transition:all .2s}
+.m-tab.active{background:var(--card2);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.modal-title{font-family:var(--head);font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
+.modal-sub{font-size:14px;color:var(--text-2);margin-bottom:28px}
+.fg{margin-bottom:18px}
+.fl{font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--text-2);display:block;margin-bottom:7px}
+.fi{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:11px 14px;border-radius:var(--r-sm);outline:none;transition:border-color .2s;cursor:none}
+.fi:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.fi::placeholder{color:var(--text-3)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.err{font-size:12px;color:var(--rose);margin-top:6px;display:none;font-family:var(--mono)}
+.strength{height:3px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
+.strength-fill{height:100%;width:0;border-radius:3px;transition:width .3s,background .3s}
+.btn-submit{width:100%;padding:14px;font-size:14px;font-weight:700;background:var(--violet);color:#fff;border:none;border-radius:var(--r-sm);cursor:none;transition:all .2s;margin-top:6px;letter-spacing:.5px}
+.btn-submit:hover{background:var(--violet-hi);box-shadow:0 4px 20px var(--violet-glow);transform:translateY(-1px)}
+.modal-note{font-size:13px;color:var(--text-2);text-align:center;margin-top:14px}
+.modal-note a{color:var(--violet-hi);cursor:none;text-decoration:none;font-weight:500}
+
+/* ════════════════════════════════════
+   DASHBOARD PAGE
+════════════════════════════════════ */
+#page-dash{padding-top:68px}
+.dash-nav{background:rgba(7,7,15,.9);backdrop-filter:blur(20px)}
+.dash-layout{display:flex;min-height:calc(100vh - 68px)}
+
+/* SIDEBAR */
+.sidebar{width:256px;background:var(--surface);border-right:1px solid var(--border);flex-shrink:0;padding:24px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
+.sb-profile{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sb-ava{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--violet),var(--violet-hi));display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px;font-weight:700;color:#fff;margin-bottom:12px}
+.sb-name{font-weight:600;font-size:15px;color:#fff;margin-bottom:3px}
+.sb-plan-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);color:var(--violet-hi);background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.2);border-radius:999px;padding:3px 10px}
+.sb-nav{list-style:none;padding:0 12px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 12px;font-size:13px;font-weight:500;color:var(--text-2);cursor:none;transition:all .2s;border-radius:var(--r-sm);margin-bottom:3px}
+.sb-item svg{width:17px;height:17px;stroke:currentColor;flex-shrink:0}
+.sb-item:hover{color:var(--text);background:var(--card)}
+.sb-item.active{color:#fff;background:rgba(124,58,237,.15);font-weight:600}
+.sb-item.active svg{stroke:var(--violet-hi)}
+.sb-divider{height:1px;background:var(--border);margin:12px 20px}
+.sb-logout{display:flex;align-items:center;gap:10px;padding:11px 24px;font-size:13px;font-weight:500;color:var(--text-3);cursor:none;transition:all .2s}
+.sb-logout svg{width:17px;height:17px;stroke:currentColor;flex-shrink:0}
+.sb-logout:hover{color:var(--rose)}
+
+/* MAIN */
+.dash-main{flex:1;padding:36px;overflow-y:auto;max-height:calc(100vh - 68px);background:var(--bg)}
+.tab-pane{display:none}
+.tab-pane.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page-title{font-family:var(--head);font-size:36px;font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text-2);margin-bottom:32px;font-family:var(--mono)}
+
+/* KPI CARDS */
+.kpi4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .25s}
+.kpi-c:hover{border-color:var(--border-hi)}
+.kpi-icon{width:38px;height:38px;border-radius:10px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.18);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.kpi-icon svg{width:17px;height:17px;stroke:var(--violet-hi)}
+.kpi-lbl{font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:6px;letter-spacing:.3px}
+.kpi-val{font-family:var(--mono);font-size:22px;color:#fff;font-weight:500;margin-bottom:4px}
+.kpi-sub{font-size:12px;color:var(--emerald)}
+
+/* PANELS */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px}
+.panel-title{font-family:var(--head);font-size:17px;font-weight:600;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.panel-title svg{width:17px;height:17px;stroke:var(--violet-hi)}
+
+/* ACTIVITY */
+.act-list{list-style:none;display:flex;flex-direction:column;gap:0}
+.act-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-l{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)}
+.act-l svg{width:15px;height:15px;stroke:var(--text-3);flex-shrink:0}
+.act-r{text-align:right}
+.act-amt{font-family:var(--mono);font-size:12px;color:var(--emerald)}
+.act-time{font-size:11px;color:var(--text-3);margin-top:2px;font-family:var(--mono)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid}
+.badge.online{color:var(--emerald);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+.badge.offline{color:var(--rose);border-color:rgba(244,63,94,.3);background:rgba(244,63,94,.08)}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+
+/* RIG ROW */
+.rig-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:20px 22px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:24px;transition:border-color .2s}
+.rig-row:hover{border-color:var(--border-hi)}
+.rig-name{font-family:var(--head);font-size:16px;font-weight:600;color:#fff;margin-bottom:3px}
+.rig-meta{font-family:var(--mono);font-size:11px;color:var(--text-3)}
+.rig-stats{display:flex;gap:28px}
+.rig-stat-lbl{font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.rig-stat-val{font-family:var(--mono);font-size:16px;color:var(--violet-hi)}
+
+/* WALLET */
+.wallet-card{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(124,58,237,.05));border:1px solid rgba(124,58,237,.25);border-radius:var(--r);padding:40px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
+.wallet-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--violet),var(--violet-hi),transparent)}
+.w-lbl{font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--text-2);margin-bottom:10px}
+.w-amt{font-family:var(--head);font-size:64px;font-weight:700;color:#fff;line-height:1;margin-bottom:6px}
+.w-usd{font-size:15px;color:var(--text-2);margin-bottom:28px;font-family:var(--mono)}
+.w-btns{display:flex;gap:12px;justify-content:center}
+.btn-w{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:11px 24px;border-radius:var(--r-sm);cursor:none;transition:all .2s;border:1px solid}
+.btn-w svg{width:15px;height:15px;stroke:currentColor;flex-shrink:0}
+.btn-w.send{color:var(--rose);border-color:rgba(244,63,94,.3);background:rgba(244,63,94,.06)}
+.btn-w.send:hover{background:rgba(244,63,94,.12)}
+.btn-w.recv{color:var(--emerald);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06)}
+.btn-w.recv:hover{background:rgba(16,185,129,.12)}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center}
+.empty-icon{width:60px;height:60px;border-radius:16px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.empty-icon svg{width:26px;height:26px;stroke:var(--text-3)}
+.empty-title{font-family:var(--head);font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
+.empty-desc{font-size:14px;color:var(--text-2);max-width:320px;line-height:1.6}
+
+/* SETTINGS */
+.settings-section{margin-bottom:28px}
+.settings-section-title{font-family:var(--head);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.settings-section-title svg{width:15px;height:15px;stroke:var(--violet-hi)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--border);gap:24px}
+.setting-row:last-child{border-bottom:none}
+.setting-info{flex:1}
+.setting-lbl{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px}
+.setting-desc{font-size:12px;color:var(--text-2)}
+.toggle{width:42px;height:23px;background:var(--border-hi);border-radius:23px;position:relative;cursor:none;transition:background .25s;flex-shrink:0}
+.toggle.on{background:var(--violet)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:17px;height:17px;background:#fff;border-radius:50%;transition:transform .25s,box-shadow .25s}
+.toggle.on::after{transform:translateX(19px);box-shadow:0 0 8px var(--violet-glow)}
+.s-input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 14px;border-radius:var(--r-sm);outline:none;transition:border-color .2s;cursor:none}
+.s-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.s-input-wide{width:280px}
+.btn-save{font-size:13px;font-weight:600;padding:10px 22px;background:var(--violet);color:#fff;border:none;border-radius:var(--r-sm);cursor:none;transition:all .2s}
+.btn-save:hover{background:var(--violet-hi)}
+.btn-danger{font-size:13px;font-weight:600;padding:10px 22px;background:transparent;color:var(--rose);border:1px solid rgba(244,63,94,.35);border-radius:var(--r-sm);cursor:none;transition:all .2s}
+.btn-danger:hover{background:rgba(244,63,94,.08)}
+.select-input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 14px;border-radius:var(--r-sm);outline:none;cursor:none;appearance:none;-webkit-appearance:none;min-width:160px}
+.select-input:focus{border-color:var(--violet)}
+
+/* REFERRAL */
+.ref-hero{background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.04));border:1px solid rgba(16,185,129,.2);border-radius:var(--r);padding:36px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.ref-hero-left{}
+.ref-tag{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--emerald);margin-bottom:8px}
+.ref-title{font-family:var(--head);font-size:28px;font-weight:700;color:#fff;margin-bottom:6px}
+.ref-desc{font-size:14px;color:var(--text-2)}
+.ref-earn{background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px 24px;text-align:center;min-width:160px}
+.ref-earn-val{font-family:var(--head);font-size:32px;font-weight:700;color:var(--emerald)}
+.ref-earn-lbl{font-size:12px;color:var(--text-2);margin-top:2px}
+.ref-link-box{display:flex;gap:10px;align-items:stretch;margin-bottom:20px}
+.ref-link-input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-2);font-family:var(--mono);font-size:13px;padding:12px 16px;border-radius:var(--r-sm);outline:none}
+.btn-copy{font-size:13px;font-weight:600;padding:12px 22px;background:var(--emerald);color:#fff;border:none;border-radius:var(--r-sm);cursor:none;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.btn-copy svg{width:14px;height:14px;stroke:#fff}
+.btn-copy:hover{background:#059669}
+.ref-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.ref-stat-c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center}
+.ref-stat-val{font-family:var(--mono);font-size:24px;color:#fff;font-weight:500;margin-bottom:4px}
+.ref-stat-lbl{font-size:12px;color:var(--text-2)}
+.ref-table-wrap{overflow-x:auto}
+.ref-table{width:100%;border-collapse:collapse}
+.ref-table th{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.ref-table td{font-size:13px;color:var(--text-2);padding:13px 14px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.ref-table tr:hover td{background:rgba(124,58,237,.03)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--card);border:1px solid var(--border-hi);border-radius:var(--r-sm);color:var(--text);font-size:13px;padding:14px 20px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);pointer-events:none;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast svg{width:16px;height:16px;stroke:var(--violet-hi);flex-shrink:0}
+.toast.success svg{stroke:var(--emerald)}
+.toast.error svg{stroke:var(--rose)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* DIVIDER */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* ── ADMIN PAGE ── */
+#pageAdmin{min-height:100vh;background:var(--bg)}
+.admin-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+.admin-login-box{background:var(--card);border:1px solid var(--border-hi);border-radius:var(--r);padding:48px;width:100%;max-width:420px;text-align:center;position:relative}
+.admin-login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--rose),transparent);border-radius:var(--r) var(--r) 0 0}
+.admin-badge{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);border-radius:999px;color:var(--rose);margin-bottom:20px}
+.admin-nav{background:rgba(7,7,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100}
+.admin-body{max-width:1200px;margin:0 auto;padding:36px 32px}
+.admin-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:32px;width:fit-content}
+.a-tab{font-size:13px;font-weight:600;padding:9px 22px;background:transparent;border:none;color:var(--text-2);cursor:none;border-radius:8px;transition:all .2s;display:flex;align-items:center;gap:7px}
+.a-tab svg{width:15px;height:15px;stroke:currentColor}
+.a-tab.active{background:var(--card2);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.a-tab-pane{display:none}
+.a-tab-pane.active{display:block;animation:fadeIn .2s ease}
+.admin-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.admin-kpi .kpi-c{border-left:3px solid var(--violet)}
+.admin-table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+.admin-table{width:100%;border-collapse:collapse;background:var(--card)}
+.admin-table th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);padding:13px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
+.admin-table td{font-size:13px;color:var(--text-2);padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.admin-table tr:last-child td{border-bottom:none}
+.admin-table tr:hover td{background:rgba(124,58,237,.03)}
+.admin-table td.mono{font-family:var(--mono);font-size:12px}
+.admin-table td.name{color:var(--text);font-weight:500}
+.badge-pending{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:var(--amber);border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
+.badge-approved{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:var(--emerald);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+.badge-rejected{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:var(--rose);border:1px solid rgba(244,63,94,.3);background:rgba(244,63,94,.08)}
+.btn-approve{font-size:12px;font-weight:600;padding:7px 14px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--emerald);border-radius:6px;cursor:none;transition:all .2s;margin-right:6px}
+.btn-approve:hover{background:var(--emerald);color:#fff}
+.btn-reject{font-size:12px;font-weight:600;padding:7px 14px;background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.25);color:var(--rose);border-radius:6px;cursor:none;transition:all .2s}
+.btn-reject:hover{background:var(--rose);color:#fff}
+.admin-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px;background:var(--card);border-radius:var(--r)}
+.admin-empty svg{width:36px;height:36px;stroke:var(--text-3);margin-bottom:14px}
+.admin-empty p{font-size:14px;color:var(--text-2)}
+.filter-row{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{font-size:12px;font-weight:500;padding:7px 16px;background:var(--surface);border:1px solid var(--border);color:var(--text-2);border-radius:999px;cursor:none;transition:all .2s}
+.filter-btn.active,.filter-btn:hover{background:var(--violet);border-color:var(--violet);color:#fff}
+.notice-bar{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-sm);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:13px;color:var(--amber)}
+.notice-bar svg{width:16px;height:16px;stroke:var(--amber);flex-shrink:0}
+/* deposit history in wallet */
+.dep-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.dep-row:last-child{border-bottom:none}
+.dep-row-left{display:flex;align-items:center;gap:10px}
+.dep-icon{width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dep-icon svg{width:16px;height:16px;stroke:var(--text-3)}
+.dep-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.dep-meta{font-size:11px;color:var(--text-3);font-family:var(--mono)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .coins6{grid-template-columns:repeat(3,1fr)}
+  .plans3,.feats6,.kpi4,.dash4,.steps4{grid-template-columns:1fr 1fr}
+  .footer4{grid-template-columns:1fr 1fr}
+  .dash-layout{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:relative;top:0;padding:0}
+  .sb-profile{display:none}
+  .sb-nav{display:flex;flex-direction:row;flex-wrap:wrap;padding:8px}
+  .sb-item{flex-shrink:0}
+  .sb-divider,.sb-logout{display:none}
+  .dash-main{max-height:none;padding:20px}
+}
+@media(max-width:640px){
+  .lp-links{display:none}
+  .coins6,.plans3,.feats6,.steps4,.testis,.kpi4,.grid2,.ref-stats{grid-template-columns:1fr}
+  .cta-box{padding:48px 24px}
+  .footer4{grid-template-columns:1fr}
+  .lp-wrap,.container{padding:0 20px}
+  .hero-stats{flex-direction:column}
+  .h-stat{border-right:none;border-bottom:1px solid var(--border)}
+  .ref-hero{flex-direction:column}
+  .w-btns{flex-direction:column}
+  .ref-link-box{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i data-lucide="check-circle"></i>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<!-- ═══════════════ AUTH MODAL ═══════════════ -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-x" id="modalX"><i data-lucide="x"></i></button>
+    <div class="modal-tabs">
+      <button class="m-tab active" id="mTabReg" onclick="switchTab('register')">Create Account</button>
+      <button class="m-tab" id="mTabLogin" onclick="switchTab('login')">Sign In</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="formReg">
+      <div class="modal-title">Get Started</div>
+      <div class="modal-sub">Join 128,000+ miners on NexusMine — it's free</div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">First Name</label><input class="fi" id="rFname" type="text" placeholder="Satoshi"></div>
+        <div class="fg"><label class="fl">Last Name</label><input class="fi" id="rLname" type="text" placeholder="Nakamoto"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Email Address</label>
+        <input class="fi" id="rEmail" type="email" placeholder="satoshi@nexusmine.io">
+        <div class="err" id="rEmailErr">Please enter a valid email address.</div>
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input class="fi" id="rPass" type="password" placeholder="Min. 8 characters" oninput="strengthCheck(this.value)">
+        <div class="strength"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="err" id="rPassErr">Password must be at least 8 characters.</div>
+      </div>
+      <div class="fg">
+        <label class="fl">Confirm Password</label>
+        <input class="fi" id="rPass2" type="password" placeholder="Repeat password">
+        <div class="err" id="rPass2Err">Passwords do not match.</div>
+      </div>
+      <button class="btn-submit" id="regBtn">Create Free Account</button>
+      <div class="modal-note">Already have an account? <a onclick="switchTab('login')">Sign in</a></div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="formLogin" style="display:none">
+      <div class="modal-title">Welcome Back</div>
+      <div class="modal-sub">Sign in to your mining dashboard</div>
+      <div class="fg"><label class="fl">Email Address</label><input class="fi" id="lEmail" type="email" placeholder="your@email.com"></div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input class="fi" id="lPass" type="password" placeholder="Your password">
+        <div class="err" id="lErr">Incorrect email or password.</div>
+      </div>
+      <button class="btn-submit" id="loginBtn">Sign In</button>
+      <div class="modal-note">No account? <a onclick="switchTab('register')">Create one free</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LANDING PAGE ═══════════════ -->
+<div id="pageLand" class="page active">
+
+<nav class="lp-nav">
+  <div class="lp-nav-inner">
+    <a href="#" class="logo" onclick="return false">
+      <div class="logo-icon"><i data-lucide="zap"></i></div>
+      <span class="logo-text">Nexus<span>Mine</span></span>
+    </a>
+    <ul class="lp-links">
+      <li><a href="#s-dash">Live Stats</a></li>
+      <li><a href="#s-plans">Plans</a></li>
+      <li><a href="#s-features">Features</a></li>
+      <li><a href="#s-how">How It Works</a></li>
+    </ul>
+    <div class="lp-nav-right">
+      <button class="btn-outline" onclick="openAuth('login')">Sign In</button>
+      <button class="btn-violet" onclick="openAuth('register')">Start Mining</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb ho1"></div>
+  <div class="hero-orb ho2"></div>
+  <div class="hero-orb ho3"></div>
+  <div class="hero-badge"><span class="hero-badge-dot"></span> Live mining across 6 global data centers</div>
+  <h1 class="hero-h1">Mine Crypto.<br><span class="grad">Zero Hardware.</span><br>Real Returns.</h1>
+  <p class="hero-p">Industrial-grade cloud mining. Deploy your hashrate in seconds and start earning Bitcoin around the clock — no setup, no maintenance.</p>
+  <div class="hero-btns">
+    <button class="btn-hero-primary" onclick="openAuth('register')"><i data-lucide="zap"></i> Start Mining Free</button>
+    <button class="btn-hero-ghost" onclick="document.getElementById('s-plans').scrollIntoView({behavior:'smooth'})">View Plans</button>
+  </div>
+  <div class="hero-stats">
+    <div class="h-stat"><div class="h-stat-val">42.8 EH/s</div><div class="h-stat-lbl">Total Hashrate</div></div>
+    <div class="h-stat"><div class="h-stat-val">128,432</div><div class="h-stat-lbl">Active Miners</div></div>
+    <div class="h-stat"><div class="h-stat-val">99.97%</div><div class="h-stat-lbl">Platform Uptime</div></div>
+    <div class="h-stat"><div class="h-stat-val">$67,412</div><div class="h-stat-lbl">BTC/USD</div></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span class="tick-item"><span class="tick-dot"></span> BTC/USD <span class="tv">$67,412.08</span></span>
+    <span class="tick-item">ETH/USD <span class="tv">$3,521.44</span></span>
+    <span class="tick-item">LTC/USD <span class="tv">$84.22</span></span>
+    <span class="tick-item">DOGE/USD <span class="tv">$0.1421</span></span>
+    <span class="tick-item">NETWORK HASHRATE <span class="tv">712.4 EH/s</span></span>
+    <span class="tick-item">BLOCKS TODAY <span class="tv">144</span></span>
+    <span class="tick-item">DIFFICULTY <span class="tv">83.15 T</span></span>
+    <span class="tick-item">AVG BLOCK TIME <span class="tv">9m 58s</span></span>
+    <span class="tick-item"><span class="tick-dot"></span> BTC/USD <span class="tv">$67,412.08</span></span>
+    <span class="tick-item">ETH/USD <span class="tv">$3,521.44</span></span>
+    <span class="tick-item">LTC/USD <span class="tv">$84.22</span></span>
+    <span class="tick-item">DOGE/USD <span class="tv">$0.1421</span></span>
+    <span class="tick-item">NETWORK HASHRATE <span class="tv">712.4 EH/s</span></span>
+    <span class="tick-item">BLOCKS TODAY <span class="tv">144</span></span>
+    <span class="tick-item">DIFFICULTY <span class="tv">83.15 T</span></span>
+    <span class="tick-item">AVG BLOCK TIME <span class="tv">9m 58s</span></span>
+  </div>
+</div>
+
+<!-- LIVE DASHBOARD -->
+<section class="lp-section" id="s-dash">
+  <div class="lp-wrap">
+    <div class="s-hdr reveal">
+      <div class="s-eyebrow">Live Performance</div>
+      <h2 class="s-h2">Real-Time Mining <span class="g">Dashboard</span></h2>
+      <p class="s-p">Live metrics from our global infrastructure running 24/7 across 4 continents.</p>
+    </div>
+    <div class="pub-dash reveal">
+      <div class="dash4">
+        <div class="d4cell"><div class="d4lbl">Total Hashrate</div><div class="d4val" id="hrVal">42.8 EH/s</div><div class="d4chg">↑ 3.2% today</div></div>
+        <div class="d4cell"><div class="d4lbl">Active Contracts</div><div class="d4val">128,432</div><div class="d4chg">↑ 847 new today</div></div>
+        <div class="d4cell"><div class="d4lbl">BTC Mined (24h)</div><div class="d4val">18.24 BTC</div><div class="d4chg">≈ $1.23M</div></div>
+        <div class="d4cell"><div class="d4lbl">Uptime</div><div class="d4val">99.97%</div><div class="d4chg">SLA guaranteed</div></div>
+      </div>
+      <div class="chart-box"><canvas id="hashChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- COINS -->
+<section class="lp-section" style="padding-top:0">
+  <div class="lp-wrap">
+    <div class="s-hdr center reveal">
+      <div class="s-eyebrow">Supported Assets</div>
+      <h2 class="s-h2">Mine Any <span class="g">Coin</span></h2>
+    </div>
+    <div class="coins6 reveal">
+      <div class="coin-c"><div class="coin-sym" style="color:#f7931a">₿</div><div class="coin-nm">Bitcoin</div><div class="coin-roi">+8.2% APY</div></div>
+      <div class="coin-c"><div class="coin-sym" style="color:#627eea">Ξ</div><div class="coin-nm">Ethereum</div><div class="coin-roi">+11.4% APY</div></div>
+      <div class="coin-c"><div class="coin-sym" style="color:#bfbbbb">Ł</div><div class="coin-nm">Litecoin</div><div class="coin-roi">+14.8% APY</div></div>
+      <div class="coin-c"><div class="coin-sym" style="color:#00d4aa">₳</div><div class="coin-nm">Cardano</div><div class="coin-roi">+9.6% APY</div></div>
+      <div class="coin-c"><div class="coin-sym" style="color:#e84142">✕</div><div class="coin-nm">Avalanche</div><div class="coin-roi">+16.2% APY</div></div>
+      <div class="coin-c"><div class="coin-sym" style="color:#ff6600">●</div><div class="coin-nm">Monero</div><div class="coin-roi">+12.1% APY</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="lp-section" id="s-plans" style="padding-top:0">
+  <div class="lp-wrap">
+    <div class="s-hdr center reveal">
+      <div class="s-eyebrow">Pricing Plans</div>
+      <h2 class="s-h2">Choose Your <span class="g">Power</span></h2>
+      <p class="s-p">Flexible contracts for every miner. Scale up anytime. Cancel anytime.</p>
+    </div>
+    <div class="plans3 reveal">
+      <div class="plan-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-hs">10 TH/s — SHA-256</div>
+        <div class="plan-price"><sup>$</sup>29</div>
+        <div class="plan-per">per month · cancel anytime</div>
+        <ul class="plan-feats">
+          <li><i data-lucide="check"></i> 10 TH/s Bitcoin hashrate</li>
+          <li><i data-lucide="check"></i> Daily BTC payouts</li>
+          <li><i data-lucide="check"></i> Basic dashboard access</li>
+          <li><i data-lucide="check"></i> Email support</li>
+          <li><i data-lucide="check"></i> 0.5% maintenance fee</li>
+        </ul>
+        <button class="btn-plan" onclick="openAuth('register')">Get Started</button>
+      </div>
+      <div class="plan-card pop">
+        <div class="plan-pop-badge">Most Popular</div>
+        <div class="plan-name">Miner</div>
+        <div class="plan-hs">100 TH/s — SHA-256</div>
+        <div class="plan-price"><sup>$</sup>249</div>
+        <div class="plan-per">per month · includes bonuses</div>
+        <ul class="plan-feats">
+          <li><i data-lucide="check"></i> 100 TH/s Bitcoin hashrate</li>
+          <li><i data-lucide="check"></i> Hourly BTC payouts</li>
+          <li><i data-lucide="check"></i> Advanced analytics</li>
+          <li><i data-lucide="check"></i> Multi-coin switching</li>
+          <li class="gold"><i data-lucide="check"></i> Priority 24/7 support</li>
+          <li class="gold"><i data-lucide="check"></i> Auto-reinvest option</li>
+          <li class="gold"><i data-lucide="check"></i> 0.3% maintenance fee</li>
+        </ul>
+        <button class="btn-plan" onclick="openAuth('register')">Get Started</button>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Elite</div>
+        <div class="plan-hs">1 PH/s — SHA-256</div>
+        <div class="plan-price"><sup>$</sup>1,899</div>
+        <div class="plan-per">per month · enterprise grade</div>
+        <ul class="plan-feats">
+          <li><i data-lucide="check"></i> 1 PH/s Bitcoin hashrate</li>
+          <li><i data-lucide="check"></i> Real-time payouts</li>
+          <li><i data-lucide="check"></i> Dedicated account manager</li>
+          <li><i data-lucide="check"></i> Custom pool allocation</li>
+          <li class="gold"><i data-lucide="check"></i> Full API access</li>
+          <li class="gold"><i data-lucide="check"></i> White-label dashboard</li>
+          <li class="gold"><i data-lucide="check"></i> 0% maintenance fee</li>
+        </ul>
+        <button class="btn-plan" onclick="showToast('Contact sales@nexusmine.io','')">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="lp-section" id="s-features">
+  <div class="lp-wrap">
+    <div class="s-hdr center reveal">
+      <div class="s-eyebrow">Why NexusMine</div>
+      <h2 class="s-h2">Built for <span class="g">Performance</span></h2>
+    </div>
+    <div class="feats6 reveal">
+      <div class="feat-c"><div class="feat-icon-wrap"><i data-lucide="zap"></i></div><div class="feat-name">Zero Downtime</div><div class="feat-desc">99.97% uptime SLA backed by redundant power, cooling, and failover systems across our global network.</div></div>
+      <div class="feat-c"><div class="feat-icon-wrap"><i data-lucide="shield-check"></i></div><div class="feat-name">Bank-Grade Security</div><div class="feat-desc">Military-grade encryption, 2FA, cold storage wallets, and real-time threat monitoring on every account.</div></div>
+      <div class="feat-c"><div class="feat-icon-wrap"><i data-lucide="bar-chart-2"></i></div><div class="feat-name">Live Analytics</div><div class="feat-desc">Track hashrate, earnings, efficiency, and ROI in real-time with our institutional-grade dashboard.</div></div>
+      <div class="feat-c"><div class="feat-icon-wrap"><i data-lucide="globe-2"></i></div><div class="feat-name">Global Network</div><div class="feat-desc">6 data centers across 4 continents with tier-3 infrastructure and sub-millisecond pool latency.</div></div>
+      <div class="feat-c"><div class="feat-icon-wrap"><i data-lucide="wallet"></i></div><div class="feat-name">Instant Payouts</div><div class="feat-desc">Withdraw earnings on-demand with no minimum. Daily automatic payouts available on all plans.</div></div>
+      <div class="feat-c"><div class="feat-icon-wrap"><i data-lucide="cpu"></i></div><div class="feat-name">Smart Switching</div><div class="feat-desc">AI-powered routing automatically directs your hashrate to the most profitable coin at any moment.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="lp-section" id="s-how">
+  <div class="lp-wrap">
+    <div class="s-hdr center reveal">
+      <div class="s-eyebrow">Getting Started</div>
+      <h2 class="s-h2">Up in <span class="g">Minutes</span></h2>
+      <p class="s-p">Four simple steps from sign-up to active earnings.</p>
+    </div>
+    <div class="steps4 reveal">
+      <div class="step-c"><div class="step-num-wrap"><i data-lucide="user-plus"></i></div><div class="step-title">Create Account</div><div class="step-desc">Register in 60 seconds with just your email. No KYC needed to start.</div></div>
+      <div class="step-c"><div class="step-num-wrap"><i data-lucide="layout-list"></i></div><div class="step-title">Choose Plan</div><div class="step-desc">Pick your hashrate — from 10 TH/s starter to multi-petahash enterprise.</div></div>
+      <div class="step-c"><div class="step-num-wrap"><i data-lucide="server"></i></div><div class="step-title">Deploy Power</div><div class="step-desc">Your hashrate goes live within 30 seconds. We mine immediately on your behalf.</div></div>
+      <div class="step-c"><div class="step-num-wrap"><i data-lucide="trending-up"></i></div><div class="step-title">Earn Daily</div><div class="step-desc">Watch your balance grow. Withdraw, reinvest, or compound for maximum returns.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="lp-section" style="padding-top:0">
+  <div class="lp-wrap">
+    <div class="s-hdr center reveal">
+      <div class="s-eyebrow">Community</div>
+      <h2 class="s-h2">Trusted by <span class="g">Miners</span></h2>
+    </div>
+    <div class="testis reveal">
+      <div class="testi-c"><div class="testi-stars">★★★★★</div><div class="testi-txt">Been using NexusMine for 8 months. Payouts are on time every day and the dashboard is incredibly detailed. Best cloud mining platform I've used.</div><div class="testi-author">Marcus T.</div><div class="testi-role">Elite Plan · 2.4 PH/s</div></div>
+      <div class="testi-c"><div class="testi-stars">★★★★★</div><div class="testi-txt">Started on Starter, scaled to Elite in 3 months. ROI consistently above projections. The team is responsive and the platform never goes down.</div><div class="testi-author">Yuki N.</div><div class="testi-role">Miner Plan · 500 TH/s</div></div>
+      <div class="testi-c"><div class="testi-stars">★★★★★</div><div class="testi-txt">The smart-switching feature alone paid for my subscription. It auto-routed me into LTC during a spike and I earned 40% more that week.</div><div class="testi-author">Rodrigo M.</div><div class="testi-role">Miner Plan · 200 TH/s</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="lp-section" style="padding-top:0">
+  <div class="lp-wrap">
+    <div class="cta-box reveal">
+      <div class="s-eyebrow" style="margin-bottom:12px">Limited Spots Available</div>
+      <div class="cta-h">Start Mining<br>Today</div>
+      <p class="cta-p">Join 128,000+ miners already earning with NexusMine. New contracts deploy in 30 seconds.</p>
+      <div class="cta-btns">
+        <button class="btn-hero-primary" onclick="openAuth('register')"><i data-lucide="zap"></i> Create Free Account</button>
+        <button class="btn-hero-ghost" onclick="document.getElementById('s-plans').scrollIntoView({behavior:'smooth'})">View Plans</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="lp-footer">
+  <div class="lp-wrap">
+    <div class="footer4">
+      <div>
+        <div class="footer-logo-wrap">
+          <div class="logo-icon"><i data-lucide="zap"></i></div>
+          <span style="font-family:var(--head);font-size:18px;font-weight:700;color:#fff">Nexus<span style="color:var(--violet-hi)">Mine</span></span>
+        </div>
+        <p class="footer-tagline">Industrial-grade cloud mining infrastructure operating at the edge of performance since 2019.</p>
+        <div class="footer-status"><span class="footer-status-dot"></span> All Systems Operational</div>
+      </div>
+      <div><div class="footer-col-title">Platform</div><ul class="footer-links"><li><a href="#s-plans">Mining Plans</a></li><li><a href="#s-dash">Dashboard</a></li><li><a href="#" onclick="openAuth('register');return false">Referral Program</a></li><li><a href="#">API Access</a></li></ul></div>
+      <div><div class="footer-col-title">Company</div><ul class="footer-links"><li><a href="#">About Us</a></li><li><a href="#">Data Centers</a></li><li><a href="#">Blog</a></li><li><a href="#">Careers</a></li></ul></div>
+      <div><div class="footer-col-title">Support</div><ul class="footer-links"><li><a href="#">Help Center</a></li><li><a href="#">Live Chat</a></li><li><a href="#">Status Page</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+    </div>
+    <div class="footer-bot">
+      <div class="footer-copy">© 2026 NexusMine Inc. All rights reserved. · Mining carries financial risk.</div>
+      <div class="footer-copy">BTC · ETH · LTC · XMR · ADA · AVAX</div>
+      <a onclick="openAdminLogin();return false" style="font-size:10px;color:var(--text-3);cursor:none;text-decoration:none;opacity:.4;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.4">⚙</a>
+    </div>
+  </div>
+</footer>
+</div><!-- /pageLand -->
+
+<!-- ═══════════════ DASHBOARD PAGE ═══════════════ -->
+<div id="pageDash" class="page">
+<nav class="lp-nav dash-nav">
+  <div class="lp-nav-inner">
+    <a href="#" class="logo" onclick="goLand();return false">
+      <div class="logo-icon"><i data-lucide="zap"></i></div>
+      <span class="logo-text">Nexus<span>Mine</span></span>
+    </a>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--text-2)" id="navEmail"></div>
+    <div class="lp-nav-right">
+      <button class="btn-outline" onclick="goLand()">← Back to Home</button>
+      <button class="btn-danger" style="font-size:13px;font-weight:600;padding:9px 20px;background:transparent;color:var(--rose);border:1px solid rgba(244,63,94,.3);border-radius:var(--r-sm);cursor:none;transition:all .2s" onclick="handleLogout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-profile">
+      <div class="sb-ava" id="sbAva">M</div>
+      <div class="sb-name" id="sbName">Miner</div>
+      <div class="sb-plan-tag"><i data-lucide="zap" style="width:11px;height:11px;stroke:var(--violet-hi)"></i> Miner Plan</div>
+    </div>
+    <ul class="sb-nav">
+      <li class="sb-item active" id="sbn-overview" onclick="goTab('overview')"><i data-lucide="layout-dashboard"></i> Overview</li>
+      <li class="sb-item" id="sbn-mining" onclick="goTab('mining')"><i data-lucide="cpu"></i> Mining</li>
+      <li class="sb-item" id="sbn-wallet" onclick="goTab('wallet')"><i data-lucide="wallet"></i> Wallet</li>
+      <li class="sb-item" id="sbn-plans" onclick="goTab('plans')"><i data-lucide="layers"></i> Plans</li>
+      <li class="sb-item" id="sbn-referral" onclick="goTab('referral')"><i data-lucide="users"></i> Referral</li>
+      <li class="sb-item" id="sbn-settings" onclick="goTab('settings')"><i data-lucide="settings-2"></i> Settings</li>
+    </ul>
+    <div class="sb-divider"></div>
+    <div class="sb-logout" onclick="handleLogout()"><i data-lucide="log-out"></i> Sign Out</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+
+    <!-- OVERVIEW -->
+    <div class="tab-pane active" id="tab-overview">
+      <div class="page-title">Overview</div>
+      <div class="page-sub" id="greetMsg">WELCOME BACK — TODAY'S STATS</div>
+      <div class="kpi4">
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="zap"></i></div><div class="kpi-lbl">Your Hashrate</div><div class="kpi-val">100 TH/s</div><div class="kpi-sub">↑ Online</div></div>
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="bitcoin"></i></div><div class="kpi-lbl">Earned Today</div><div class="kpi-val">0.00042 BTC</div><div class="kpi-sub">≈ $28.31 USD</div></div>
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="wallet"></i></div><div class="kpi-lbl">Total Balance</div><div class="kpi-val" id="overviewBalance">0.00000000 BTC</div><div class="kpi-sub" id="overviewBalanceSub">Deposit to activate mining</div></div>
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="trending-up"></i></div><div class="kpi-lbl">Monthly ROI</div><div class="kpi-val">11.4%</div><div class="kpi-sub">↑ Above target</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-title"><i data-lucide="activity"></i> Recent Activity</div>
+          <ul class="act-list">
+            <li class="act-item"><div class="act-l"><i data-lucide="arrow-down-circle"></i> BTC Payout received</div><div class="act-r"><div class="act-amt">+0.00042 BTC</div><div class="act-time">2 min ago</div></div></li>
+            <li class="act-item"><div class="act-l"><i data-lucide="cpu"></i> Hashrate spike detected</div><div class="act-r"><div class="act-amt" style="color:var(--violet-hi)">102.3 TH/s</div><div class="act-time">18 min ago</div></div></li>
+            <li class="act-item"><div class="act-l"><i data-lucide="arrow-down-circle"></i> BTC Payout received</div><div class="act-r"><div class="act-amt">+0.00041 BTC</div><div class="act-time">1 hr ago</div></div></li>
+            <li class="act-item"><div class="act-l"><i data-lucide="shield-check"></i> 2FA verification</div><div class="act-r"><div class="act-amt" style="color:var(--text-2)">Security</div><div class="act-time">3 hr ago</div></div></li>
+          </ul>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><i data-lucide="server"></i> Pool Status</div>
+          <ul class="act-list">
+            <li class="act-item"><div class="act-l"><i data-lucide="server"></i> NEXUS_POOL_07 (Primary)</div><div><div class="badge online"><span class="badge-dot"></span>Online</div></div></li>
+            <li class="act-item"><div class="act-l"><i data-lucide="server"></i> NEXUS_POOL_03 (Backup)</div><div><div class="badge online"><span class="badge-dot"></span>Standby</div></div></li>
+            <li class="act-item"><div class="act-l"><i data-lucide="globe-2"></i> Data Center: SG-01</div><div style="font-family:var(--mono);font-size:12px;color:var(--violet-hi)">Ping: 4ms</div></li>
+            <li class="act-item"><div class="act-l"><i data-lucide="clock"></i> Next payout</div><div style="font-family:var(--mono);font-size:12px;color:var(--amber)">~58 min</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MINING -->
+    <div class="tab-pane" id="tab-mining">
+      <div class="page-title">Mining</div>
+      <div class="page-sub">YOUR ACTIVE RIGS — 2 DEPLOYED</div>
+      <div class="kpi4">
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="activity"></i></div><div class="kpi-lbl">Total Hashrate</div><div class="kpi-val">100 TH/s</div><div class="kpi-sub">↑ +2.1%</div></div>
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="zap"></i></div><div class="kpi-lbl">Efficiency</div><div class="kpi-val">98.4%</div><div class="kpi-sub">Optimal</div></div>
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="thermometer"></i></div><div class="kpi-lbl">Avg Temp</div><div class="kpi-val">62°C</div><div class="kpi-sub">Normal range</div></div>
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="clock"></i></div><div class="kpi-lbl">Uptime</div><div class="kpi-val">99.97%</div><div class="kpi-sub">Last 30 days</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><i data-lucide="hard-drive"></i> Active Rigs</div>
+        <div class="rig-row">
+          <div><div class="rig-name">RIG-001 — Antminer S21</div><div class="rig-meta">Pool: NEXUS_POOL_07 · Coin: BTC · Worker: nx_worker_01</div></div>
+          <div class="rig-stats">
+            <div><div class="rig-stat-lbl">Hashrate</div><div class="rig-stat-val">68 TH/s</div></div>
+            <div><div class="rig-stat-lbl">Temp</div><div class="rig-stat-val">61°C</div></div>
+            <div><div class="rig-stat-lbl">Status</div><div class="badge online"><span class="badge-dot"></span>Online</div></div>
+          </div>
+        </div>
+        <div class="rig-row">
+          <div><div class="rig-name">RIG-002 — WhatsMiner M60</div><div class="rig-meta">Pool: NEXUS_POOL_07 · Coin: BTC · Worker: nx_worker_02</div></div>
+          <div class="rig-stats">
+            <div><div class="rig-stat-lbl">Hashrate</div><div class="rig-stat-val">32 TH/s</div></div>
+            <div><div class="rig-stat-lbl">Temp</div><div class="rig-stat-val">64°C</div></div>
+            <div><div class="rig-stat-lbl">Status</div><div class="badge online"><span class="badge-dot"></span>Online</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALLET -->
+    <div class="tab-pane" id="tab-wallet">
+      <div class="page-title">Wallet</div>
+      <div class="page-sub">YOUR BITCOIN BALANCE</div>
+      <div class="wallet-card">
+        <div class="w-lbl">Total Balance</div>
+        <div class="w-amt" id="walletBtcDisplay">0.00000000</div>
+        <div class="w-usd" id="walletUsdDisplay">≈ ₦0.00 · Deposit to start mining</div>
+        <!-- Mining live ticker -->
+        <div id="miningTickerWrap" style="display:none;margin-bottom:18px">
+          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:999px;padding:6px 16px;font-family:var(--mono);font-size:12px;color:var(--emerald)">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:pulse 1.5s infinite;display:inline-block;flex-shrink:0"></span>
+            Mining +0.000003 BTC/day &nbsp;·&nbsp; Today: <span id="todayEarned">+0.00000000</span>
+          </div>
+        </div>
+        <!-- Withdrawal progress -->
+        <div id="withdrawProgressWrap" style="display:none;margin-bottom:20px;text-align:left">
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--text-2);margin-bottom:6px">
+            <span>Withdrawal progress</span>
+            <span id="withdrawPct">0%</span>
+          </div>
+          <div style="height:5px;background:var(--border);border-radius:5px;overflow:hidden">
+            <div id="withdrawBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--violet),var(--emerald));border-radius:5px;transition:width .5s ease"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-2);margin-top:5px;font-family:var(--mono)">Min. withdrawal: <span style="color:var(--amber)">0.00005000 BTC</span></div>
+        </div>
+        <div class="w-btns">
+          <button class="btn-w send" id="withdrawBtn" onclick="handleWithdraw()"><i data-lucide="arrow-up-right"></i> Withdraw</button>
+          <button class="btn-w recv" onclick="openDepositModal()"><i data-lucide="arrow-down-left"></i> Deposit</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><i data-lucide="clock"></i> My Deposit Requests</div>
+        <div id="walletDepositList">
+          <div class="empty-state">
+            <div class="empty-icon"><i data-lucide="inbox"></i></div>
+            <div class="empty-title">No deposit requests yet</div>
+            <div class="empty-desc">Click "Deposit" above to submit your first payment. It will appear here while we verify it.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOSIT MODAL -->
+    <div class="overlay" id="depositOverlay" style="z-index:1100">
+      <div class="modal" style="max-width:500px">
+        <button class="modal-x" onclick="closeDepositModal()"><i data-lucide="x"></i></button>
+
+        <!-- STEP 1: Payment details -->
+        <div id="depositStep1">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);display:flex;align-items:center;justify-content:center"><i data-lucide="arrow-down-left" style="width:18px;height:18px;stroke:var(--emerald)"></i></div>
+            <div><div class="modal-title" style="font-size:22px;margin-bottom:0">Make a Deposit</div><div style="font-size:13px;color:var(--text-2)">Send payment to the details below</div></div>
+          </div>
+
+          <!-- Payment Details Card -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:24px;position:relative">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-3);margin-bottom:16px">Payment Details</div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--text-2)">Method</span>
+              <span style="font-size:13px;font-weight:600;color:var(--text)">Smartcash</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--text-2)">Account Number</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-family:var(--mono);font-size:15px;color:var(--emerald);font-weight:500">0145783712</span>
+                <button onclick="copyText('0145783712')" style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:6px;padding:4px 8px;cursor:none;transition:all .2s;display:flex;align-items:center" title="Copy"><i data-lucide="copy" style="width:12px;height:12px;stroke:var(--emerald)"></i></button>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+              <span style="font-size:13px;color:var(--text-2)">Account Name</span>
+              <span style="font-size:13px;font-weight:600;color:var(--text)">Jamiu Balogun</span>
+            </div>
+
+            <div style="margin-top:16px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-sm);padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+              <i data-lucide="alert-circle" style="width:15px;height:15px;stroke:var(--amber);flex-shrink:0;margin-top:1px"></i>
+              <span style="font-size:12px;color:var(--amber);line-height:1.6">Send your payment first, then fill in the form below so we can confirm and credit your account.</span>
+            </div>
+          </div>
+
+          <button class="btn-submit" style="background:var(--emerald)" onclick="showDepositStep2()">I've Made the Payment →</button>
+        </div>
+
+        <!-- STEP 2: Confirmation form -->
+        <div id="depositStep2" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+            <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);display:flex;align-items:center;justify-content:center"><i data-lucide="check-circle" style="width:18px;height:18px;stroke:var(--emerald)"></i></div>
+            <div><div class="modal-title" style="font-size:22px;margin-bottom:0">Confirm Payment</div><div style="font-size:13px;color:var(--text-2)">Fill in your payment details for verification</div></div>
+          </div>
+
+          <div class="fg">
+            <label class="fl">Amount Sent (₦) <span style="color:var(--text-3);font-weight:400;font-size:11px">— Minimum ₦2,000</span></label>
+            <input class="fi" id="depAmount" type="number" placeholder="Minimum ₦2,000" min="2000" oninput="updateBtcPreview(this.value)">
+            <div class="err" id="depAmountErr">Minimum deposit is ₦2,000.</div>
+            <!-- Live BTC preview -->
+            <div id="btcPreview" style="display:none;margin-top:10px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--text-2)">You will receive</span>
+              <span style="font-family:var(--mono);font-size:14px;color:var(--emerald);font-weight:500" id="btcPreviewVal">0.00000000 BTC</span>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">Your Bank Name</label>
+            <input class="fi" id="depBank" type="text" placeholder="e.g. Access Bank, GTBank...">
+            <div class="err" id="depBankErr">Please enter your bank name.</div>
+          </div>
+          <div class="fg">
+            <label class="fl">Your Account Name</label>
+            <input class="fi" id="depAccName" type="text" placeholder="Name on your bank account">
+            <div class="err" id="depAccNameErr">Please enter your account name.</div>
+          </div>
+
+          <div style="display:flex;gap:10px">
+            <button class="btn-submit" style="background:transparent;border:1px solid var(--border-hi);color:var(--text-2);flex:0 0 auto;width:auto;padding:13px 20px" onclick="showDepositStep1()">← Back</button>
+            <button class="btn-submit" style="background:var(--emerald)" onclick="submitDeposit()">Submit for Verification</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Success -->
+        <div id="depositStep3" style="display:none;text-align:center;padding:20px 0">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+            <i data-lucide="check-circle" style="width:28px;height:28px;stroke:var(--emerald)"></i>
+          </div>
+          <div style="font-family:var(--head);font-size:24px;font-weight:700;color:#fff;margin-bottom:8px">Submitted!</div>
+          <div style="font-size:14px;color:var(--text-2);line-height:1.7;margin-bottom:20px;max-width:320px;margin-left:auto;margin-right:auto">Your deposit is pending review. Once approved you will receive:</div>
+          <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:16px 20px;margin-bottom:12px;max-width:300px;margin-left:auto;margin-right:auto">
+            <div style="font-family:var(--mono);font-size:20px;color:var(--emerald);font-weight:500;margin-bottom:4px" id="dep3BtcAmt">0.00000000 BTC</div>
+            <div style="font-size:12px;color:var(--text-2)">credited to your wallet</div>
+          </div>
+          <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:14px 20px;margin-bottom:24px;max-width:300px;margin-left:auto;margin-right:auto;font-size:12px;color:var(--text-2);line-height:1.7">
+            ⛏ Mining starts immediately after approval<br>
+            <span style="color:var(--violet-hi)">+0.000003 BTC</span> added to your wallet every day<br>
+            Min. withdrawal: <span style="color:var(--amber)">0.00005 BTC</span>
+          </div>
+          <button class="btn-submit" style="background:var(--emerald)" onclick="closeDepositModal()">Done</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PLANS -->
+    <div class="tab-pane" id="tab-plans">
+      <div class="page-title">Plans</div>
+      <div class="page-sub">CURRENT PLAN: MINER — ACTIVE</div>
+      <div class="plans3">
+        <div class="plan-card">
+          <div class="plan-name">Starter</div><div class="plan-hs">10 TH/s</div>
+          <div class="plan-price"><sup>$</sup>29</div><div class="plan-per">/ month</div>
+          <ul class="plan-feats"><li><i data-lucide="check"></i> 10 TH/s hashrate</li><li><i data-lucide="check"></i> Daily payouts</li><li><i data-lucide="check"></i> Basic dashboard</li><li><i data-lucide="check"></i> Email support</li></ul>
+          <button class="btn-plan" onclick="showToast('Downgrade scheduled for next billing cycle.','')">Downgrade</button>
+        </div>
+        <div class="plan-card pop">
+          <div class="plan-pop-badge">Current Plan</div>
+          <div class="plan-name">Miner</div><div class="plan-hs">100 TH/s</div>
+          <div class="plan-price"><sup>$</sup>249</div><div class="plan-per">/ month · renews Jun 2027</div>
+          <ul class="plan-feats"><li><i data-lucide="check"></i> 100 TH/s hashrate</li><li><i data-lucide="check"></i> Hourly payouts</li><li><i data-lucide="check"></i> Advanced analytics</li><li class="gold"><i data-lucide="check"></i> Priority support</li><li class="gold"><i data-lucide="check"></i> Auto-reinvest</li></ul>
+          <button class="btn-plan" style="opacity:.5;cursor:not-allowed" disabled>Active Plan</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Elite</div><div class="plan-hs">1 PH/s</div>
+          <div class="plan-price"><sup>$</sup>1,899</div><div class="plan-per">/ month</div>
+          <ul class="plan-feats"><li><i data-lucide="check"></i> 1 PH/s hashrate</li><li><i data-lucide="check"></i> Real-time payouts</li><li><i data-lucide="check"></i> Dedicated manager</li><li class="gold"><i data-lucide="check"></i> API access</li><li class="gold"><i data-lucide="check"></i> 0% fee</li></ul>
+          <button class="btn-plan" onclick="showToast('Upgrade request sent! Our team will contact you.','success')">Upgrade</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERRAL -->
+    <div class="tab-pane" id="tab-referral">
+      <div class="page-title">Referral</div>
+      <div class="page-sub">EARN 10% OF EVERY REFERRED MINER'S EARNINGS</div>
+      <div class="ref-hero">
+        <div class="ref-hero-left">
+          <div class="ref-tag">Referral Program</div>
+          <div class="ref-title">Invite. Earn. Grow.</div>
+          <div class="ref-desc">Share your unique referral link and earn 10% of your referrals' mining earnings — paid in BTC, forever.</div>
+        </div>
+        <div class="ref-earn">
+          <div class="ref-earn-val">10%</div>
+          <div class="ref-earn-lbl">Lifetime commission</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><i data-lucide="link"></i> Your Referral Link</div>
+        <div class="ref-link-box">
+          <input class="ref-link-input" id="refLinkInput" type="text" value="" readonly>
+          <button class="btn-copy" onclick="copyRefLink()"><i data-lucide="copy"></i> Copy Link</button>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-save" style="font-size:12px;padding:9px 18px;display:flex;align-items:center;gap:6px" onclick="showToast('Referral link shared!','success')"><i data-lucide="share-2" style="width:13px;height:13px;stroke:#fff"></i> Share</button>
+          <button class="btn-outline" style="font-size:12px;padding:9px 18px;border-radius:var(--r-sm)" onclick="showToast('QR code generated!','success')">Show QR Code</button>
+        </div>
+      </div>
+      <div class="ref-stats">
+        <div class="ref-stat-c"><div class="ref-stat-val">0</div><div class="ref-stat-lbl">Total Referrals</div></div>
+        <div class="ref-stat-c"><div class="ref-stat-val">0</div><div class="ref-stat-lbl">Active Miners</div></div>
+        <div class="ref-stat-c"><div class="ref-stat-val">0.00000 BTC</div><div class="ref-stat-lbl">Total Earned</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><i data-lucide="users"></i> Referral Activity</div>
+        <div class="empty-state">
+          <div class="empty-icon"><i data-lucide="user-plus"></i></div>
+          <div class="empty-title">No referrals yet</div>
+          <div class="empty-desc">Share your link and start earning when your friends sign up and begin mining. Commissions are paid instantly in BTC.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-pane" id="tab-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">MANAGE YOUR ACCOUNT PREFERENCES</div>
+
+      <!-- PROFILE -->
+      <div class="panel">
+        <div class="settings-section">
+          <div class="settings-section-title"><i data-lucide="user"></i> Profile Information</div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Display Name</div><div class="setting-desc">Your public name shown on the platform</div></div>
+            <input class="s-input s-input-wide" id="sName" type="text" placeholder="Your name">
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Email Address</div><div class="setting-desc">Used for login and notifications</div></div>
+            <input class="s-input s-input-wide" id="sEmail" type="email">
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Country / Region</div><div class="setting-desc">Used for tax reporting and compliance</div></div>
+            <select class="s-input select-input">
+              <option>United States</option><option>United Kingdom</option><option>Nigeria</option><option>Canada</option><option>Australia</option><option>Germany</option><option>Other</option>
+            </select>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px">
+            <button class="btn-save" onclick="saveProfile()">Save Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYOUT -->
+      <div class="panel">
+        <div class="settings-section">
+          <div class="settings-section-title"><i data-lucide="wallet"></i> Payout Settings</div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Bitcoin Payout Wallet</div><div class="setting-desc">Your BTC withdrawal address</div></div>
+            <input class="s-input s-input-wide" type="text" placeholder="bc1qxy2kgdygjrs...">
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Payout Frequency</div><div class="setting-desc">How often to send earnings to your wallet</div></div>
+            <select class="s-input select-input">
+              <option>Hourly</option><option>Daily</option><option>Weekly</option><option>Manual</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Minimum Payout Threshold</div><div class="setting-desc">Minimum BTC amount before automatic withdrawal</div></div>
+            <input class="s-input" type="text" value="0.001" style="width:120px">
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Auto-Reinvest Earnings</div><div class="setting-desc">Automatically reinvest payouts into more hashrate</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="margin-top:20px">
+            <button class="btn-save" onclick="showToast('Payout settings saved!','success')">Save Payout Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="panel">
+        <div class="settings-section">
+          <div class="settings-section-title"><i data-lucide="bell"></i> Notifications</div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Payout Alerts</div><div class="setting-desc">Get notified when a payout is sent</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Hashrate Drop Alerts</div><div class="setting-desc">Alert when hashrate drops below 90%</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Weekly Earnings Summary</div><div class="setting-desc">Weekly email report of your earnings and performance</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Security Alerts</div><div class="setting-desc">Login and 2FA notifications</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Referral Earnings</div><div class="setting-desc">Notify when a referral earns commission for you</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Promotional Offers</div><div class="setting-desc">Receive news about plan discounts and promotions</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div style="margin-top:20px">
+            <button class="btn-save" onclick="showToast('Notification preferences saved!','success')">Save Preferences</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="panel">
+        <div class="settings-section">
+          <div class="settings-section-title"><i data-lucide="shield"></i> Security</div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Two-Factor Authentication</div><div class="setting-desc">Add an extra layer of security to your account</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Withdrawal Whitelist</div><div class="setting-desc">Only allow withdrawals to pre-approved wallet addresses</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row"><div class="setting-info"><div class="setting-lbl">Login Notifications</div><div class="setting-desc">Email me when a new device signs in</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Change Password</div><div class="setting-desc">Update your account password</div></div>
+            <button class="btn-outline" style="font-size:13px;padding:9px 18px;border-radius:var(--r-sm)" onclick="showToast('Password reset email sent to your address.','success')">Change Password</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Active Sessions</div><div class="setting-desc">Log out of all other devices</div></div>
+            <button class="btn-outline" style="font-size:13px;padding:9px 18px;border-radius:var(--r-sm)" onclick="showToast('All other sessions have been terminated.','success')">Revoke All Sessions</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPEARANCE -->
+      <div class="panel">
+        <div class="settings-section">
+          <div class="settings-section-title"><i data-lucide="palette"></i> Appearance</div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Currency Display</div><div class="setting-desc">Fiat currency used for value conversion</div></div>
+            <select class="s-input select-input">
+              <option>USD — US Dollar</option><option>EUR — Euro</option><option>GBP — British Pound</option><option>NGN — Nigerian Naira</option><option>CAD — Canadian Dollar</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Dashboard Language</div><div class="setting-desc">Language for the dashboard interface</div></div>
+            <select class="s-input select-input">
+              <option>English</option><option>Spanish</option><option>French</option><option>German</option><option>Portuguese</option>
+            </select>
+          </div>
+          <div style="margin-top:20px">
+            <button class="btn-save" onclick="showToast('Appearance settings saved!','success')">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div class="panel" style="border-color:rgba(244,63,94,.2)">
+        <div class="settings-section">
+          <div class="settings-section-title" style="color:var(--rose)"><i data-lucide="alert-triangle" style="stroke:var(--rose)"></i> Danger Zone</div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Suspend Account</div><div class="setting-desc">Temporarily pause mining and disable access</div></div>
+            <button class="btn-danger" onclick="showToast('Account suspension submitted. Our team will review.','error')">Suspend</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-lbl">Close Account</div><div class="setting-desc">Permanently delete your account and withdraw all remaining funds</div></div>
+            <button class="btn-danger" onclick="handleLogout()">Close Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div><!-- /pageDash -->
+
+<!-- ═══════════════ ADMIN PAGE ═══════════════ -->
+<div id="pageAdmin" class="page">
+
+  <!-- Admin Login Screen -->
+  <div id="adminLoginScreen" class="admin-login">
+    <div class="admin-login-box">
+      <div class="admin-badge"><i data-lucide="shield" style="width:12px;height:12px;stroke:var(--rose)"></i> Admin Access Only</div>
+      <div style="font-family:var(--head);font-size:32px;font-weight:700;color:#fff;margin-bottom:6px">Admin Panel</div>
+      <div style="font-size:14px;color:var(--text-2);margin-bottom:32px">NexusMine Control Centre</div>
+      <div class="fg" style="text-align:left">
+        <label class="fl">Admin Password</label>
+        <input class="fi" id="adminPassInput" type="password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkAdminPass()">
+        <div class="err" id="adminPassErr" style="display:none">Incorrect password. Try again.</div>
+      </div>
+      <button class="btn-submit" onclick="checkAdminPass()">Enter Admin Panel</button>
+      <div style="margin-top:20px">
+        <a onclick="closeAdminPage();return false" style="font-size:13px;color:var(--text-2);cursor:none;text-decoration:none">← Back to Site</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard (shown after login) -->
+  <div id="adminDashboard" style="display:none">
+    <div class="admin-nav">
+      <div class="logo">
+        <div class="logo-icon" style="background:linear-gradient(135deg,var(--rose),#fb7185)"><i data-lucide="shield"></i></div>
+        <span class="logo-text" style="color:#fff">Nexus<span style="color:var(--rose)">Admin</span></span>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-3)">ADMIN CONTROL PANEL · READ-ONLY MODE</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-outline" onclick="refreshAdminData()" style="font-size:12px;padding:7px 16px;border-radius:var(--r-sm);display:flex;align-items:center;gap:6px"><i data-lucide="refresh-cw" style="width:13px;height:13px;stroke:currentColor"></i> Refresh</button>
+        <button class="btn-danger" onclick="closeAdminPage()" style="font-size:12px;padding:7px 16px;border-radius:var(--r-sm)">Exit Admin</button>
+      </div>
+    </div>
+
+    <div class="admin-body">
+
+      <!-- KPI row -->
+      <div class="admin-kpi" id="adminKpi">
+        <div class="kpi-c"><div class="kpi-icon"><i data-lucide="users"></i></div><div class="kpi-lbl">Total Users</div><div class="kpi-val" id="ak-users">0</div><div class="kpi-sub">Registered accounts</div></div>
+        <div class="kpi-c" style="border-left-color:var(--amber)"><div class="kpi-icon" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.2)"><i data-lucide="clock" style="stroke:var(--amber)"></i></div><div class="kpi-lbl">Pending Deposits</div><div class="kpi-val" id="ak-pending">0</div><div class="kpi-sub">Awaiting approval</div></div>
+        <div class="kpi-c" style="border-left-color:var(--emerald)"><div class="kpi-icon" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.2)"><i data-lucide="check-circle" style="stroke:var(--emerald)"></i></div><div class="kpi-lbl">Approved</div><div class="kpi-val" id="ak-approved">0</div><div class="kpi-sub">This month</div></div>
+        <div class="kpi-c" style="border-left-color:var(--rose)"><div class="kpi-icon" style="background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.2)"><i data-lucide="x-circle" style="stroke:var(--rose)"></i></div><div class="kpi-lbl">Rejected</div><div class="kpi-val" id="ak-rejected">0</div><div class="kpi-sub">All time</div></div>
+      </div>
+
+      <!-- Admin tabs -->
+      <div class="admin-tabs">
+        <button class="a-tab active" id="atab-deposits" onclick="switchAdminTab('deposits')"><i data-lucide="clock"></i> Deposit Requests</button>
+        <button class="a-tab" id="atab-users" onclick="switchAdminTab('users')"><i data-lucide="users"></i> All Users</button>
+        <button class="a-tab" id="atab-activity" onclick="switchAdminTab('activity')"><i data-lucide="activity"></i> Activity Log</button>
+      </div>
+
+      <!-- DEPOSITS TAB -->
+      <div class="a-tab-pane active" id="apane-deposits">
+        <div class="notice-bar"><i data-lucide="alert-circle"></i> Approve deposits only after confirming payment to 0145783712 (Smartcash — Jamiu Balogun).</div>
+        <div class="filter-row">
+          <span style="font-size:12px;color:var(--text-2);font-weight:500">Filter:</span>
+          <button class="filter-btn active" id="df-all" onclick="filterDeposits('all')">All</button>
+          <button class="filter-btn" id="df-pending" onclick="filterDeposits('pending')">Pending</button>
+          <button class="filter-btn" id="df-approved" onclick="filterDeposits('approved')">Approved</button>
+          <button class="filter-btn" id="df-rejected" onclick="filterDeposits('rejected')">Rejected</button>
+        </div>
+        <div id="adminDepositsWrap">
+          <div class="admin-empty"><i data-lucide="inbox"></i><p>No deposit requests yet.</p></div>
+        </div>
+      </div>
+
+      <!-- USERS TAB -->
+      <div class="a-tab-pane" id="apane-users">
+        <div id="adminUsersWrap">
+          <div class="admin-empty"><i data-lucide="users"></i><p>No users registered yet.</p></div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY TAB -->
+      <div class="a-tab-pane" id="apane-activity">
+        <div id="adminActivityWrap">
+          <div class="admin-empty"><i data-lucide="activity"></i><p>No activity recorded yet.</p></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /pageAdmin -->
+
+<script>
+// ── CURSOR ──
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function ar(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar);})();
+
+// ── SCROLL REVEAL ──
+const ro=new IntersectionObserver(en=>{en.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);ro.unobserve(e.target);}});},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// ── HASHRATE CHART ──
+const cvs=document.getElementById('hashChart');
+if(cvs){
+  const c2=cvs.getContext('2d');
+  function sz(){cvs.width=cvs.parentElement.offsetWidth||1000;cvs.height=140;}
+  sz();window.addEventListener('resize',()=>{sz();dw();});
+  function gd(n){const a=[];let v=40;for(let i=0;i<n;i++){v+=(Math.random()-.47)*3;v=Math.max(28,Math.min(55,v));a.push(v);}return a;}
+  let cd=gd(80);
+  function dw(){
+    const w=cvs.width,h=cvs.height;c2.clearRect(0,0,w,h);
+    const mn=22,mx2=60,sY=v=>h-((v-mn)/(mx2-mn))*h*.82-h*.09,sX=i=>(i/(cd.length-1))*w;
+    c2.strokeStyle='rgba(42,42,69,.6)';c2.lineWidth=1;
+    for(let i=0;i<=4;i++){const y=(i/4)*h;c2.beginPath();c2.moveTo(0,y);c2.lineTo(w,y);c2.stroke();}
+    const g=c2.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(124,58,237,.22)');g.addColorStop(1,'rgba(124,58,237,0)');
+    c2.beginPath();c2.moveTo(sX(0),h);
+    cd.forEach((v,i)=>{if(i===0)c2.lineTo(sX(i),sY(v));else{const px=sX(i-1),py=sY(cd[i-1]),nx=sX(i),ny=sY(v),cpx=(px+nx)/2;c2.bezierCurveTo(cpx,py,cpx,ny,nx,ny);}});
+    c2.lineTo(sX(cd.length-1),h);c2.closePath();c2.fillStyle=g;c2.fill();
+    c2.beginPath();
+    cd.forEach((v,i)=>{if(i===0)c2.moveTo(sX(i),sY(v));else{const px=sX(i-1),py=sY(cd[i-1]),nx=sX(i),ny=sY(v),cpx=(px+nx)/2;c2.bezierCurveTo(cpx,py,cpx,ny,nx,ny);}});
+    c2.strokeStyle='rgba(124,58,237,.9)';c2.lineWidth=2;c2.stroke();
+    c2.beginPath();
+    cd.forEach((v,i)=>{if(i===0)c2.moveTo(sX(i),sY(v));else{const px=sX(i-1),py=sY(cd[i-1]),nx=sX(i),ny=sY(v),cpx=(px+nx)/2;c2.bezierCurveTo(cpx,py,cpx,ny,nx,ny);}});
+    c2.strokeStyle='rgba(167,139,250,.2)';c2.lineWidth=8;c2.stroke();
+    c2.fillStyle='rgba(167,139,250,.4)';c2.font='11px JetBrains Mono';c2.fillText('HASHRATE (EH/s)',12,18);
+  }
+  dw();
+  setInterval(()=>{
+    const last=cd[cd.length-1];cd.shift();cd.push(Math.max(28,Math.min(55,last+(Math.random()-.47)*2)));dw();
+    const el=document.getElementById('hrVal');if(el)el.textContent=cd[cd.length-1].toFixed(1)+' EH/s';
+  },1400);
+}
+
+// ── AUTH STORAGE ──
+function getUsers(){try{return JSON.parse(localStorage.getItem('nx_users')||'{}');}catch{return {};}}
+function saveUsers(u){localStorage.setItem('nx_users',JSON.stringify(u));}
+function getCurrent(){try{return JSON.parse(sessionStorage.getItem('nx_me')||'null');}catch{return null;}}
+function setCurrent(u){sessionStorage.setItem('nx_me',JSON.stringify(u));}
+
+// ── MODAL ──
+function openAuth(tab){
+  switchTab2(tab);
+  document.getElementById('authOverlay').classList.add('open');
+}
+function closeAuth(){
+  document.getElementById('authOverlay').classList.remove('open');
+  document.getElementById('lErr').style.display='none';
+}
+document.getElementById('modalX').addEventListener('click',closeAuth);
+document.getElementById('authOverlay').addEventListener('click',function(e){if(e.target===this)closeAuth();});
+function switchTab(tab){
+  const isReg=tab==='register';
+  document.getElementById('formReg').style.display=isReg?'block':'none';
+  document.getElementById('formLogin').style.display=isReg?'none':'block';
+  document.getElementById('mTabReg').classList.toggle('active',isReg);
+  document.getElementById('mTabLogin').classList.toggle('active',!isReg);
+}
+function switchTab2(tab){switchTab(tab);}
+
+// ── STRENGTH ──
+function strengthCheck(pw){
+  const f=document.getElementById('strengthFill');if(!f)return;
+  let s=0;if(pw.length>=8)s++;if(/[A-Z]/.test(pw))s++;if(/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;
+  f.style.width=[0,28,54,78,100][s]+'%';
+  f.style.background=['','#f43f5e','#f59e0b','#7c3aed','#10b981'][s]||'#10b981';
+}
+
+// ── REGISTER ──
+document.getElementById('regBtn').addEventListener('click',()=>{
+  const fn=document.getElementById('rFname').value.trim();
+  const ln=document.getElementById('rLname').value.trim();
+  const em=document.getElementById('rEmail').value.trim();
+  const pw=document.getElementById('rPass').value;
+  const pw2=document.getElementById('rPass2').value;
+  let ok=true;
+  document.getElementById('rEmailErr').style.display='none';
+  document.getElementById('rPassErr').style.display='none';
+  document.getElementById('rPass2Err').style.display='none';
+  if(!em||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){document.getElementById('rEmailErr').style.display='block';ok=false;}
+  if(pw.length<8){document.getElementById('rPassErr').style.display='block';ok=false;}
+  if(pw!==pw2){document.getElementById('rPass2Err').style.display='block';ok=false;}
+  if(!ok)return;
+  const users=getUsers();
+  if(users[em]){document.getElementById('rEmailErr').textContent='Email already registered.';document.getElementById('rEmailErr').style.display='block';return;}
+  const user={email:em,firstName:fn||'Miner',lastName:ln||'',password:pw,joined:new Date().toISOString()};
+  users[em]=user;saveUsers(users);setCurrent(user);closeAuth();bootDash(user);
+});
+
+// ── LOGIN ──
+document.getElementById('loginBt
